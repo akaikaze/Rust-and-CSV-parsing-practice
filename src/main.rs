@@ -8,17 +8,18 @@ use std::process;
 
 fn run() -> Result<(), Box<Error>>{
     let file_path = get_first_arg()?;
-    let mut rdr = csv::Reader::from_path(file_path)?;
-    {
-        let headers = rdr.headers()?;
-        println!("{:?}", headers);
-    }
+    let mut rdr = csv::ReaderBuilder::new()
+        .has_headers(false)
+        .delimiter(b';')
+        .double_quote(false)
+        .escape(Some(b'\\'))
+        .flexible(true)
+        .comment(Some(b'#'))
+        .from_path(file_path)?;
     for result in rdr.records( ){
         let record = result?;
         println!("{:?}", record)
     }
-    let headers = rdr.headers()?;
-    println!("{:?}", headers);
     Ok(())
 }
 
