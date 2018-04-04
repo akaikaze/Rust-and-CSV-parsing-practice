@@ -1,34 +1,26 @@
 extern crate csv;
 extern crate serde;
 
-#[macro_use]
-extern crate serde_derive;
-
 use std::env;
 use std::error::Error;
 use std::ffi::OsString;
 use std::fs::File;
 use std::process;
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-struct Record {
-    latitude: f64,
-    longitude: f64,
-    #[serde(deserialize_with = "csv::invalid_option")]
-    population: Option<u64>,
-    city: String,
-    state: String,
-}
+use std::io;
 
 fn run() -> Result<(), Box<Error>> {
-    let file_path = get_first_arg()?;
-    let mut rdr = csv::Reader::from_path(file_path)?;
-    for result in rdr.deserialize() {
+    let mut wtr = csv::Writer::from_writer(io::stdout());
+    // Since we're writing records manually, we must explicitly write our
+    // header record. A header record is written the same way that other
+    // records are written.
+    wtr.write_record(&["City", "State", "Population", "Latitude", "Longitude"])?;
+    wtr.write_record(&["Davidsons Landing", "AK", "", "65.2419444", "-165.2716667"])?;
+    wtr.write_record(&["Kenai", "AK", "7610", "60.5544444", "-151.2583333"])?;
+    wtr.write_record(&["Oakman", "AL", "", "33.7133333", "-87.3886111"])?;
 
-        let record: Record = result?;
-        println!("{:?}", record);
-    }
+    // A CSV writer maintains an internal buffer, so it's important
+    // to flush the buffer when you're done.
+    wtr.flush()?;
     Ok(())
 }
 
