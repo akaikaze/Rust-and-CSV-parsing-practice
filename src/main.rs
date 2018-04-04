@@ -14,12 +14,8 @@ fn main() {
 fn run() -> Result<(), Box<Error>>{
     let mut rdr = csv::Reader::from_reader(io::stdin());
     for result in rdr.records( ){
-        match result {
-            Err(err) => return Err(From::from(err)),
-            Ok(record) => {
-                println!("{:?}", record)
-            }
-        }
+        let record = result?;
+        println!("{:?}", record)
     }
     Ok(())
 }
