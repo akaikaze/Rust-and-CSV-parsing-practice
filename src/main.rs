@@ -23,37 +23,23 @@ struct Record {
 }
 
 fn run() -> Result<(), Box<Error>> {
+    let query = match env::args().nth(2) {
+        None => return Err(From::from("expected 1 argument, but got none")),
+        Some(query) => query,
+    };
+
     let read_file_path = get_first_arg()?;
     let mut wtr = csv::Writer::from_writer(io::stdout());
     let mut rdr = csv::Reader::from_path(read_file_path)?;
+    
+    wtr.write_record(rdr.headers()?)?;
 
-    for result in rdr.deserialize() {
-        let record: Record = result?;
-        wtr.serialize(record)?;
+    for result in rdr.records() {
+        let record = result?;
+        if record.iter().any(|field| field == &query) {
+            wtr.write_record(&record)?;
+        }
     }
-
-
-    // wtr.serialize(Record {
-    //     city: "Davidsons Landing",
-    //     state: "AK",
-    //     population: None,
-    //     latitude: 65.2419444,
-    //     longitude: -165.2716667,        
-    // })?;
-    // wtr.serialize(Record {
-    //     city: "Kenai",
-    //     state: "AK",
-    //     population: Some(7610),
-    //     latitude: 60.5544444,
-    //     longitude: -151.2583333,
-    // })?;
-    // wtr.serialize(Record {
-    //     city: "Oakman",
-    //     state: "AL",
-    //     population: None,
-    //     latitude: 33.7133333,
-    //     longitude: -87.3886111,
-    // })?;
 
     wtr.flush()?;
     Ok(())
