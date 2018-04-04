@@ -26,11 +26,11 @@ fn run() -> Result<u64, Box<Error>> {
 
     let read_file_path = get_first_arg()?;
     let mut rdr = csv::Reader::from_path(read_file_path)?;
+    let mut record = csv::ByteRecord::new();
     
     let mut count = 0;
 
-    for result in rdr.byte_records() {
-        let record = result?;
+    while rdr.read_byte_record(&mut record)? {
         if &record[0] == b"us" && &record[3] == b"MA" {
             count += 1;
         }
