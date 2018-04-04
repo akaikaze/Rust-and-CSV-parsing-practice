@@ -5,8 +5,9 @@ use std::error::Error;
 use std::ffi::OsString;
 use std::fs::File;
 use std::process;
+use std::collections::HashMap;
 
-type Record = (String, String, Option<u64>, f64, f64);
+type Record = HashMap<String, String>;
 
 fn run() -> Result<(), Box<Error>> {
     let file_path = get_first_arg()?;
