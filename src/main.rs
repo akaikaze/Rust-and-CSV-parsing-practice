@@ -11,18 +11,14 @@ use std::fs::File;
 use std::process;
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
 struct Record {
-    #[serde(rename = "Latitude")]
     latitude: f64,
-    #[serde(rename = "Longitude")]
     longitude: f64,
-    #[serde(rename = "Population")]
+    #[serde(deserialize_with = "csv::invalid_option")]
     population: Option<u64>,
-    #[serde(rename = "City")]
     city: String,
-    #[serde(rename = "State")]
     state: String,
-
 }
 
 fn run() -> Result<(), Box<Error>> {
